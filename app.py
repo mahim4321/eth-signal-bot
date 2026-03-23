@@ -7,36 +7,42 @@ from datetime import datetime
 st.set_page_config(page_title="ETH Pro Signal", layout="wide")
 
 def get_live_data():
-    url = "https://api.binance.com/api/v3/klines"
+    # বিন্যান্সের ৩টি আলাদা সার্ভার লিঙ্ক (যাতে একটি কাজ না করলে অন্যটি করে)
+    endpoints = [
+        "https://api.binance.com/api/v3/klines",
+        "https://api1.binance.com/api/v3/klines",
+        "https://api3.binance.com/api/v3/klines"
+    ]
     params = {"symbol": "ETHUSDT", "interval": "15m", "limit": 100}
-    try:
-        response = requests.get(url, params=params, timeout=10)
-        data = response.json()
-        if not data or 'code' in data: # ডাটা খালি কি না চেক
-            return None
-        df = pd.DataFrame(data, columns=['time', 'open', 'high', 'low', 'close', 'vol', 'close_time', 'q_vol', 'trades', 't_base', 't_quote', 'ignore'])
-        df['close'] = df['close'].astype(float)
-        df['time'] = pd.to_datetime(df['time'], unit='ms')
-        return df
-    except Exception as e:
-        st.error(f"Connection Error: {e}")
-        return None
+    
+    for url in endpoints:
+        try:
+            response = requests.get(url, params=params, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                df = pd.DataFrame(data, columns=['time', 'open', 'high', 'low', 'close', 'vol', 'close_time', 'q_vol', 'trades', 't_base', 't_quote', 'ignore'])
+                df['close'] = df['close'].astype(float)
+                df['time'] = pd.to_datetime(df['time'], unit='ms')
+                return df
+        except:
+            continue
+    return None
 
 st.title("📊 ETH Real-Time Pro Signal")
 
-# বাটন ক্লিক করলে বা পেজ লোড হলে
+# লাইভ ডাটা কল করা
 df = get_live_data()
 
-if df is not None and not df.empty:
+if df is not None:
     current_price = df['close'].iloc[-1]
     
     # RSI Calculation
     delta = df['close'].diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-    rs = gain / loss
-    rsi = 100 - (100 / (1 + rs)).iloc[-1]
+    rsi = 100 - (100 / (1 + (gain / loss))).iloc[-1]
     
+    # EMA 20
     ema_20 = df['close'].ewm(span=20, adjust=False).mean().iloc[-1]
     
     # সিগন্যাল লজিক
@@ -57,7 +63,7 @@ if df is not None and not df.empty:
     fig.update_layout(template="plotly_dark", height=400, margin=dict(l=0, r=0, t=0, b=0))
     st.plotly_chart(fig, use_container_width=True)
 else:
-    st.warning("বিন্যান্স থেকে ডাটা লোড হচ্ছে না। দয়া করে ১ মিনিট পর 'Update' দিন।")
+    st.error("বিন্যান্সের সব সার্ভার এই মুহূর্তে ব্যস্ত। অনুগ্রহ করে কয়েক সেকেন্ড পর আবার চেষ্টা করুন।")
 
-if st.button('Update Signal Now'):
+if st.button('Update Now'):
     st.rerun()
