@@ -1,23 +1,61 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
-st.set_page_config(page_title="ETH High Accuracy", layout="wide")
+# ১. পেজ সেটআপ এবং গোল্ডেন থিম
+st.set_page_config(page_title="ETH Pro Dashboard", layout="wide")
 
-st.markdown("<h2 style='text-align: center; color: #00ff88;'>🎯 ETH High-Accuracy Bot</h2>", unsafe_allow_html=True)
+st.markdown("""
+    <style>
+    .stApp { background-color: #0b0e11; }
+    h1, h3 { color: #f0b90b !important; text-align: center; }
+    .stTabs [data-baseweb="tab-list"] { gap: 10px; justify-content: center; }
+    .stTabs [data-baseweb="tab"] { 
+        background-color: #1e2329; 
+        border-radius: 5px; 
+        color: white; 
+        padding: 10px 20px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-# ১. টেকনিক্যাল মিটার (Simple Version)
-st.write("### 📡 Technical Analysis Signal")
-html_meter = """
-<iframe src="https://s.tradingview.com/embed-widget/technical-analysis/?locale=en#%7B%22interval%22%3A%2215m%22%2C%22width%22%3A%22100%25%22%2C%22isTransparent%22%3Afalse%2C%22height%22%3A400%2C%22symbol%22%3A%22BINANCE%3AETHUSDT%22%2C%22showIntervalTabs%22%3Atrue%2C%22displayMode%22%3A%22single%22%2C%22colorTheme%22%3A%22dark%22%7D" 
-width="100%" height="400" frameborder="0" style="border:none;"></iframe>
-"""
-st.components.v1.html(html_meter, height=410)
+st.title("🏆 ETH Professional Trader Suite")
 
-st.divider()
+# ২. ট্যাব সিস্টেম (যাতে মোবাইলে অগোছালো না লাগে)
+tab1, tab2, tab3 = st.tabs(["📊 Live Analysis", "🌍 Market News", "📝 Trade Journal"])
 
-# ২. লাইভ চার্ট (Simple Version)
-st.write("### 📈 Live ETH/USDT Chart")
-html_chart = """
-<iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_76296&symbol=BINANCE%3AETHUSDT&interval=15&hidesidetoolbar=1&hidetoptoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides={}&overrides={}&enabled_features=[]&disabled_features=[]&locale=en&utm_source=localhost&utm_medium=widget&utm_campaign=chart&utm_term=BINANCE%3AETHUSDT" 
-width="100%" height="500" frameborder="0" style="border:none;"></iframe>
-"""
-st.components.v1.html(html_chart, height=510)
+with tab1:
+    st.write("### ⚡ Real-Time ETH Signal")
+    # বিন্যান্স প্রাইস বার
+    components.html("""
+        <iframe src="https://s.tradingview.com/embed-widget/symbol-info/?symbol=BINANCE%3AETHUSDT&colorTheme=dark" width="100%" height="150" frameborder="0"></iframe>
+    """, height=160)
+    
+    # সিগন্যাল মিটার
+    components.html("""
+        <iframe src="https://s.tradingview.com/embed-widget/technical-analysis/?symbol=BINANCE%3AETHUSDT&interval=15m&colorTheme=dark&width=100%25&height=400" width="100%" height="400" frameborder="0"></iframe>
+    """, height=410)
+    
+    st.divider()
+    
+    # প্রো চার্ট
+    st.write("### 📈 Advanced Chart")
+    components.html("""
+        <iframe src="https://s.tradingview.com/widgetembed/?symbol=BINANCE%3AETHUSDT&interval=15&theme=dark" width="100%" height="500" frameborder="0"></iframe>
+    """, height=520)
+
+with tab2:
+    col_a, col_b = st.columns(2)
+    with col_a:
+        st.write("### 📅 Economic Events")
+        components.html("""
+            <iframe src="https://s.tradingview.com/embed-widget/events/?colorTheme=dark&width=100%25&height=400" width="100%" height="400" frameborder="0"></iframe>
+        """, height=420)
+    with col_b:
+        st.write("### 🌍 Fear & Greed")
+        st.image("https://alternative.me/crypto/fear-and-greed-index.png", use_container_width=True)
+
+with tab3:
+    st.write("### 📝 Trading Journal")
+    journal_note = st.text_area("আপনার আজকের ট্রেড প্ল্যান লিখুন...", height=200)
+    if st.button("Save Entry"):
+        st.success("নোটটি সফলভাবে সংরক্ষিত হয়েছে!")
