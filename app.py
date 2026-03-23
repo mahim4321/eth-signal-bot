@@ -1,60 +1,23 @@
 import streamlit as st
-import streamlit.components.v1 as components
 
-# একদম হালকা পেজ সেটআপ
 st.set_page_config(page_title="ETH High Accuracy", layout="wide")
 
 st.markdown("<h2 style='text-align: center; color: #00ff88;'>🎯 ETH High-Accuracy Bot</h2>", unsafe_allow_html=True)
 
-# ১. টেকনিক্যাল মিটার (সরাসরি মেইন বডিতে)
+# ১. টেকনিক্যাল মিটার (Simple Version)
 st.write("### 📡 Technical Analysis Signal")
-components.html(
-    """
-    <div class="tradingview-widget-container">
-      <div class="tradingview-widget-container__widget"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
-      {
-      "interval": "15m",
-      "width": "100%",
-      "height": 450,
-      "symbol": "BINANCE:ETHUSDT",
-      "showIntervalTabs": true,
-      "displayMode": "single",
-      "locale": "en",
-      "colorTheme": "dark"
-    }
-      </script>
-    </div>
-    """,
-    height=480,
-)
+html_meter = """
+<iframe src="https://s.tradingview.com/embed-widget/technical-analysis/?locale=en#%7B%22interval%22%3A%2215m%22%2C%22width%22%3A%22100%25%22%2C%22isTransparent%22%3Afalse%2C%22height%22%3A400%2C%22symbol%22%3A%22BINANCE%3AETHUSDT%22%2C%22showIntervalTabs%22%3Atrue%2C%22displayMode%22%3A%22single%22%2C%22colorTheme%22%3A%22dark%22%7D" 
+width="100%" height="400" frameborder="0" style="border:none;"></iframe>
+"""
+st.components.v1.html(html_meter, height=410)
 
 st.divider()
 
-# ২. লাইভ চার্ট (সরাসরি মেইন বডিতে)
+# ২. লাইভ চার্ট (Simple Version)
 st.write("### 📈 Live ETH/USDT Chart")
-components.html(
-    """
-    <div class="tradingview-widget-container" style="height:500px">
-      <div id="tradingview_chart"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-      <script type="text/javascript">
-      new TradingView.widget(
-      {
-      "autosize": true,
-      "symbol": "BINANCE:ETHUSDT",
-      "interval": "15",
-      "timezone": "Etc/UTC",
-      "theme": "dark",
-      "style": "1",
-      "locale": "en",
-      "enable_publishing": false,
-      "allow_symbol_change": true,
-      "container_id": "tradingview_chart"
-    }
-      );
-      </script>
-    </div>
-    """,
-    height=520,
-)
+html_chart = """
+<iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_76296&symbol=BINANCE%3AETHUSDT&interval=15&hidesidetoolbar=1&hidetoptoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides={}&overrides={}&enabled_features=[]&disabled_features=[]&locale=en&utm_source=localhost&utm_medium=widget&utm_campaign=chart&utm_term=BINANCE%3AETHUSDT" 
+width="100%" height="500" frameborder="0" style="border:none;"></iframe>
+"""
+st.components.v1.html(html_chart, height=510)
