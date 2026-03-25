@@ -1,80 +1,57 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import requests
+import time
+from streamlit_autorefresh import st_autorefresh
 
-# ১. প্রো-ট্রেডার ইন্টারফেস
-st.set_page_config(page_title="Master AI Pro Elite", layout="wide")
+# ১. অটো-রিফ্রেশ সেটআপ
+st.set_page_config(page_title="BTC Master AI Pro", layout="wide")
+st_autorefresh(interval=30000, limit=100, key="btc_refresher")
 
 st.markdown("""
     <style>
     .stApp { background-color: #0b0e11; }
-    .signal-engine, .exit-engine {
-        padding: 25px;
+    .status-card {
+        padding: 20px;
         border-radius: 15px;
         text-align: center;
+        border: 2px solid #f0b90b;
+        background: #1e2329;
         margin-bottom: 20px;
-        font-weight: bold;
     }
-    .exit-safe { background-color: #1e2329; border: 1px solid #00ff88; color: #00ff88; }
-    .exit-danger { background-color: #ff4b4b; border: 2px solid white; color: white; animation: blinker 1s linear infinite; }
-    @keyframes blinker { 50% { opacity: 0.5; } }
-    h2, h3 { color: #f0b90b !important; text-align: center; }
+    .timer-text { font-size: 14px; color: #787b86; text-align: right; }
     </style>
     """, unsafe_allow_html=True)
 
-# ২. স্মার্ট ইঞ্জিন (News, BTC & Exit Logic)
-def get_market_data():
+# ২. বিটকয়েন লাইভ ডাটা
+def get_btc_data():
     try:
-        btc = requests.get("https://api.binance.com/api/3/ticker/24hr?symbol=BTCUSDT").json()
-        eth = requests.get("https://api.binance.com/api/3/ticker/24hr?symbol=ETHUSDT").json()
-        btc_change = float(btc['priceChangePercent'])
-        eth_change = float(eth['priceChangePercent'])
-        return btc_change, eth_change
+        resp = requests.get("https://api.binance.com/api/3/ticker/24hr?symbol=BTCUSDT").json()
+        return float(resp['lastPrice']), float(resp['priceChangePercent'])
     except:
         return 0.0, 0.0
 
-btc_c, eth_c = get_market_data()
+btc_p, btc_c = get_btc_data()
 
-st.markdown("<h2>🤖 Master AI Pro: Elite Mode</h2>", unsafe_allow_html=True)
+# ৩. হেডার
+st.markdown("<h2 style='text-align: center; color: #f0b90b;'>⚡ BTC Master AI: GitHub Edition</h2>", unsafe_allow_html=True)
+st.markdown(f"<p class='timer-text'>🔄 Last Update: {time.strftime('%H:%M:%S')}</p>", unsafe_allow_html=True)
 
-# ৩. মেইন সিগন্যাল ও ইমার্জেন্সি এক্সিট বাটন
-col_top1, col_top2 = st.columns(2)
+# ৪. সিগন্যাল কার্ড
+if btc_c < -2.0:
+    st.markdown(f'<div class="status-card" style="border-color: #ff4b4b; color: #ff4b4b;">🛑 বিপদ: BTC {btc_c}% ডাউন!</div>', unsafe_allow_html=True)
+else:
+    st.markdown(f'<div class="status-card" style="color: #00ff88;">✅ মার্কেট স্থিতিশীল (BTC: ${btc_p})</div>', unsafe_allow_html=True)
 
-with col_top1:
-    # মার্কেট এন্ট্রি ভার্ডিক্ট
-    if btc_c > -1.5:
-        st.markdown(f'<div class="signal-engine" style="background-color: #00ff88; color: black; font-size: 22px;">✅ মার্কেট কন্ডিশন: নিরাপদ</div>', unsafe_allow_html=True)
-    else:
-        st.markdown(f'<div class="signal-engine" style="background-color: #f0b90b; color: black; font-size: 22px;">⚠️ মার্কেট অস্থির: সাবধানে থাকুন</div>', unsafe_allow_html=True)
-
-with col_top2:
-    # ইমার্জেন্সি এক্সিট ইঞ্জিন
-    if eth_c < -4.0 or btc_c < -4.0:
-        st.markdown(f'<div class="exit-engine exit-danger" style="font-size: 22px;">🚨 EMERGENCY EXIT: এখনই ট্রেড ক্লোজ করুন!</div>', unsafe_allow_html=True)
-    else:
-        st.markdown(f'<div class="exit-engine exit-safe" style="font-size: 22px;">🛡️ Exit Status: হোল্ড করুন (Safe)</div>', unsafe_allow_html=True)
-
-st.divider()
-
-# ৪. ট্রেডিং উইজেটস
-col1, col2 = st.columns([1.2, 1])
-
+# ৫. ট্রেডিং ভিউ উইজেটস
+col1, col2 = st.columns(2)
 with col1:
-    st.write("### 📡 Technical Analysis (15m)")
-    components.html(f"""
-        <iframe src="https://s.tradingview.com/embed-widget/technical-analysis/?symbol=BINANCE%3AETHUSDT&interval=15m&colorTheme=dark&width=100%25&height=400" width="100%" height="400" frameborder="0"></iframe>
-    """, height=410)
-
+    st.write("### ⏱️ BTC Fast (1m)")
+    components.html('<iframe src="https://s.tradingview.com/embed-widget/technical-analysis/?symbol=BINANCE%3ABTCUSDT&interval=1m&colorTheme=dark&width=100%25&height=380" frameborder="0"></iframe>', height=400)
 with col2:
-    st.write("### 📊 Market Depth (ETH)")
-    components.html("""
-        <iframe src="https://s.tradingview.com/embed-widget/symbol-overview/?symbols=BINANCE%3AETHUSDT&colorTheme=dark&autosize=true" width="100%" height="400" frameborder="0"></iframe>
-    """, height=410)
+    st.write("### 🛡️ BTC Confirm (15m)")
+    components.html('<iframe src="https://s.tradingview.com/embed-widget/technical-analysis/?symbol=BINANCE%3ABTCUSDT&interval=15m&colorTheme=dark&width=100%25&height=380" frameborder="0"></iframe>', height=400)
 
 st.divider()
-
-# ৫. প্রফেশনাল চার্ট
-st.write("### 📈 Live Execution Chart")
-components.html("""
-    <iframe src="https://s.tradingview.com/widgetembed/?symbol=BINANCE%3AETHUSDT&interval=15&theme=dark" width="100%" height="550" frameborder="0"></iframe>
-""", height=560)
+st.write("### 📈 Live BTC Chart")
+components.html('<iframe src="https://s.tradingview.com/widgetembed/?symbol=BINANCE%3ABTCUSDT&interval=15&theme=dark" width="100%" height="500" frameborder="0"></iframe>', height=510)
