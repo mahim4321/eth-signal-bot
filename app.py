@@ -18,38 +18,39 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# ২. অ্যাডভান্সড এনালাইসিস ইঞ্জিন (এখানেই সেই কোডটি দেওয়া হয়েছে)
+# ২. আপডেট করা অ্যাডভান্সড এনালাইসিস ইঞ্জিন
 def fetch_pro_data():
     try:
+        # বিকল্প বিন্যান্স API লিঙ্ক (আরও ফাস্ট ডাটা কানেকশন)
+        url = "https://api1.binance.com/api/3/ticker/24hr?symbol=ETHUSDT"
         headers = {'User-Agent': 'Mozilla/5.0'}
-        # বিন্যান্স থেকে ডাটা আনা হচ্ছে
-        resp = requests.get("https://api.binance.com/api/3/ticker/24hr?symbol=ETHUSDT", headers=headers)
-        eth = resp.json()
+        resp = requests.get(url, headers=headers, timeout=10)
         
-        price = float(eth['lastPrice'])
-        change = float(eth['priceChangePercent'])
-        volume = float(eth['quoteVolume']) / 1000000 # Millions এ রূপান্তর
-        
-        # স্মার্ট সিগন্যাল লজিক
-        if change > 0.8 and volume > 150:
-            verdict = "🚀 STRONG BUY (CONFIRMED)"
-            v_color = "#00ff88"
-        elif change < -1.5:
-            verdict = "⚠️ STRONG SELL (DANGER)"
-            v_color = "#ff4b4b"
-        else:
-            verdict = "⚖️ NEUTRAL (WAITING...)"
-            v_color = "#f0b90b"
+        if resp.status_code == 200:
+            eth = resp.json()
+            price = float(eth['lastPrice'])
+            change = float(eth['priceChangePercent'])
+            volume = float(eth['quoteVolume']) / 1000000
             
-        return price, change, volume, verdict, v_color
+            # সিগন্যাল লজিক (ভলিউম ও প্রাইজ চেঞ্জ ফিল্টার)
+            if change > 0.8 and volume > 100:
+                verdict, v_color = "🚀 STRONG BUY", "#00ff88"
+            elif change < -1.5:
+                verdict, v_color = "⚠️ DANGER", "#ff4b4b"
+            else:
+                verdict, v_color = "⚖️ NEUTRAL", "#f0b90b"
+            return price, change, volume, verdict, v_color
+        else:
+            return 0, 0, 0, "SERVER BUSY", "#ff4b4b"
     except Exception as e:
-        return 0, 0, 0, f"RETRYING... (Check Network)", "#ff4b4b"
+        # নেটওয়ার্ক সমস্যা থাকলে এটি দেখাবে
+        return 0, 0, 0, "CONNECTING...", "#f0b90b"
 
 # ৩. ডাটা কল করা
 p, c, v, verdict, col = fetch_pro_data()
 
 # ৪. মেইন ডিসপ্লে
-st.markdown(f"<h1 style='text-align: center; color: #627eea;'>💎 Master AI: Ultra-Accuracy</h1>", unsafe_allow_html=True)
+st.markdown(f"<h1 style='text-align: center; color: #627eea;'>💎 Master AI: World-Class Mode</h1>", unsafe_allow_html=True)
 
 st.markdown(f"""
     <div class="signal-card" style="border-color: {col};">
@@ -58,16 +59,16 @@ st.markdown(f"""
     </div>
     """, unsafe_allow_html=True)
 
-# ৫. মেট্রিক্স ও চার্ট
+# ৫. ট্রেডিং মেট্রিক্স
 st.write("---")
 m1, m2, m3 = st.columns(3)
 m1.metric("📊 24h Vol (USD)", f"${v:.2f}M")
-m2.metric("📉 Price Change", f"{c}%")
+m2.metric("📉 Price Status", f"{c}%")
 m3.metric("⏱️ Timeframe", "15m (Fixed)")
 
+# ৬. প্রফেশনাল লাইভ চার্ট
 import streamlit.components.v1 as components
 st.write("### 📈 Live Execution Engine (15m)")
-# এখানে চার্টটি সব সময় ১৫ মিনিটে থাকবে
 components.html(f"""
     <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE%3AETHUSDT&interval=15&theme=dark" width="100%" height="500" frameborder="0"></iframe>
 """, height=510)
