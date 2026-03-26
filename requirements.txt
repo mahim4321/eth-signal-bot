@@ -1,16 +1,3 @@
-def fetch_pro_data():
-    try:
-        # এই হেডারটি যোগ করলে বিন্যান্স ব্লক করবে না
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        resp = requests.get("https://api.binance.com/api/3/ticker/24hr?symbol=ETHUSDT", headers=headers)
-        eth = resp.json()
-        
-        price = float(eth['lastPrice'])
-        change = float(eth['priceChangePercent'])
-        volume = float(eth['quoteVolume']) / 1000000
-        
-        # বাকি লজিক আগের মতোই থাকবে...
-        return price, change, volume, verdict, v_color
-    except Exception as e:
-        return 0, 0, 0, f"RETRYING... ({str(e)})", "#ff4b4b"
-
+streamlit
+requests
+streamlit-autorefresh
